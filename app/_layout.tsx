@@ -1,37 +1,39 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import React, {useEffect} from 'react';
+import {SplashScreen, Stack} from 'expo-router';
+import {useFonts} from 'expo-font';
+import {StatusBar} from "expo-status-bar";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+const RootLayout: React.FC = () => {
+    const [fontsLoaded, error] = useFonts({
+        'Poppins-Black': require('../assets/fonts/Poppins-Black.ttf'),
+        'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+        'Poppins-ExtraBold': require('../assets/fonts/Poppins-ExtraBold.ttf'),
+        'Poppins-ExtraLight': require('../assets/fonts/Poppins-ExtraLight.ttf'),
+        'Poppins-Light': require('../assets/fonts/Poppins-Light.ttf'),
+        'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
+        'Poppins-Regular': require('../assets/fonts/Poppins-Regular.ttf'),
+        'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+        'Poppins-Thin': require('../assets/fonts/Poppins-Thin.ttf'),
+    });
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+    useEffect(() => {
+        if (error) throw error;
+        if (fontsLoaded) SplashScreen.hideAsync();
+    }, [fontsLoaded, error]);
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+    if (!fontsLoaded && !error) return null;
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    return (
+        <>
+            <Stack>
+                <Stack.Screen options={{headerShown: false}} name="index"/>
+                <Stack.Screen options={{headerShown: false}} name="(auth)"/>
+                <Stack.Screen options={{headerShown: false}} name="(tabs)"/>
+                {/*<Stack.Screen options={{headerShown: false}} name="/search/[query]"/>*/}
+            </Stack>
+            <StatusBar style="light"/>
+        </>
+    );
+};
 
-  if (!loaded) {
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
-  );
-}
+export default RootLayout;
